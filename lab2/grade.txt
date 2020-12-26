@@ -1,0 +1,4 @@
+
+-1 pt: Do not hard-code R3 with a pre-set value
+
+Total: 9/10

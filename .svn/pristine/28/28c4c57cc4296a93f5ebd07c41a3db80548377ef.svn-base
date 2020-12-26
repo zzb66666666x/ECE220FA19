@@ -1,0 +1,280 @@
+#include <stdint.h>
+#include <stdio.h>
+
+#include "visualize.h"
+#include "mp11.h"
+
+#define MY_INFINITY   1000000000
+#define True 1
+
+//helper functions
+void graph_from_src_init(graph_t * g, vertex_set_t * src_vs);
+void heap_init(graph_t * g, heap_t * h, vertex_set_t * src_vs);
+void heap_insert(graph_t * g, heap_t * h, int32_t id);
+int32_t heap_pop(graph_t * g, heap_t * h);
+void up_heap(graph_t * g, heap_t * h, int32_t elt_index);
+void down_heap(graph_t * g, heap_t * h, int32_t elt_index);
+
+void
+find_nodes (locale_t* loc, vertex_set_t* vs, pyr_tree_t* p, int32_t nnum)
+{
+    // Do not modify the following line nor add anything above in the function.
+    record_fn_call ();
+	int32_t id,x, y_left, y_right,range,loc_x,loc_y;
+	if (nnum > (p->n_nodes)){
+		return;
+	}
+	else{
+		x = (p->node)[nnum].x;
+		y_left = (p->node)[nnum].y_left;
+		y_right = (p->node)[nnum].y_right;
+		if (4*nnum+1 > (p->n_nodes)){
+			//leaf
+			//printf("There are %d nodes in the pyramid tree\n",p->n_nodes);
+			//printf("The nnum is %d \n",nnum);
+			if ((vs->count <= MAX_IN_VERTEX_SET)&&(in_range(loc,x,y_left))){
+				id = (p->node)[nnum].id;
+				vs->id[vs->count] = id;
+				vs->count++;
+			}
+			//recognized one leaf, return to find another one
+			return;
+		}
+		else{
+			//not yet: at internal node 
+			//consider which subtree should I go 
+			//only four possibilities
+			range = loc->range;
+			loc_x = loc->x;
+			loc_y = loc->y;
+			if (((loc_x-range)<=x)&&((loc_y-range)<=y_left)){
+				find_nodes(loc,vs,p,nnum*4+1);
+			}
+			if (((loc_x-range)<=x)&&((loc_y+range)>=y_left)){
+				find_nodes(loc,vs,p,nnum*4+3);
+			}
+			if (((loc_x+range)>=x)&&((loc_y-range)<=y_right)){
+				find_nodes(loc,vs,p,nnum*4+2);
+			}
+			if (((loc_x+range)>=x)&&((loc_y+range)>=y_right)){
+				find_nodes(loc,vs,p,nnum*4+4);		
+			}
+		}
+	}
+	return;
+}
+
+
+void
+trim_nodes (graph_t* g, vertex_set_t* vs, locale_t* loc)
+{
+//Remember to update the count in the vertex set like src_vs and dst_vs
+	int32_t temp[MAX_IN_VERTEX_SET];
+	int32_t tot = vs->count;
+	int32_t count = 0;
+	int32_t x,y;
+	for (int i = 0; i < tot; i++)
+	{
+		x = (g->vertex)[(vs->id)[i]].x;
+		y = (g->vertex)[(vs->id)[i]].y;
+		if (in_range(loc,x,y)){
+			temp[count] = (vs->id)[i];
+			count++;
+		}
+	}
+	vs->count = count;
+	for (int i = 0; i < count; i++)
+	{
+		(vs->id)[i] = temp[i];
+	}
+	return;
+}
+
+
+int32_t
+dijkstra (graph_t* g, heap_t* h, vertex_set_t* src, vertex_set_t* dest,
+          path_t* path)
+{
+	//Variables
+	int32_t node;
+	int32_t * neighbor;
+	int32_t * distance;
+	int32_t current_node_distance;
+	int32_t temp_neighbor_distance;
+	int32_t temp_neighbor_from_src;
+	int32_t sum_distance;
+	int32_t neighbor_id;
+	int32_t path_count = 0;
+	int32_t dest_min_id;
+	int32_t dest_min_dis;
+	//Initialize
+	h->n_elts = 0;
+	graph_from_src_init(g,src);
+	heap_init(g,h,src);
+	//begin the algorithm
+	while (True)
+	{
+		node = heap_pop(g,h);
+		if (node == -1){
+			break;
+		}
+		neighbor = (g->vertex)[node].neighbor;
+		distance = (g->vertex)[node].distance;
+		current_node_distance = (g->vertex)[node].from_src;
+//printf("the node is %d\n",node);
+//printf("the current node has distance %d\n",current_node_distance);
+		for (int i = 0; i < (g->vertex)[node].n_neighbors; i++)
+		{
+			neighbor_id = neighbor[i];
+			temp_neighbor_distance = distance[i];
+//printf("the distance for neighbor is %d\n",temp_neighbor_distance);
+			temp_neighbor_from_src = (g->vertex)[neighbor_id].from_src;
+//printf("the from src for this neighbor is %d\n",temp_neighbor_from_src);
+			sum_distance = current_node_distance + temp_neighbor_distance;
+			if (sum_distance < temp_neighbor_from_src){
+				//time to update
+				(g->vertex)[neighbor_id].from_src = sum_distance;
+				(g->vertex)[neighbor_id].pred = node;
+				//insert the node with neighbor_id
+//printf("there are %d in heap\n",h->n_elts);
+				heap_insert(g,h,neighbor_id);
+//printf("insert one!!!!\n");
+//printf("there are %d in heap\n",h->n_elts);
+			}
+		}
+		//end of while loop
+	}	
+	//check if all points in the src has zero distance
+	//for (int i = 0; i < src->count; i++)
+	//{
+	//	if ((g->vertex)[(src->id)[i]].from_src != 0){printf("something wrong\n");};
+	//}
+	//search the shortest path
+	dest_min_id = (dest->id)[4];
+	dest_min_dis = (g->vertex)[dest_min_id].from_src;
+	for (int i = 0; i < dest->count; i++)
+	{
+		if ((g->vertex)[(dest->id)[i]].from_src < dest_min_dis){
+			dest_min_dis = (g->vertex)[(dest->id)[i]].from_src;
+			dest_min_id = (dest->id)[i];
+		}
+	}
+	node = dest_min_id;
+	while (True)
+	{
+		if ((g->vertex)[node].from_src != 0){
+			path_count++;
+			node = (g->vertex)[node].pred;
+		}
+		else{
+			path_count++;
+			break;		
+		}
+	}
+	//printf("the path count is %d\n",path_count);
+	if (path_count >= MAX_PATH_LENGTH){
+		return 0;
+	}
+	else{
+		node = dest_min_id;
+		path->n_vertices = path_count;
+		path->tot_dist = (g->vertex)[node].from_src;
+		for (int i = path_count-1; i >= 0; i--)
+		{
+			(path->id)[i] = node;
+			node = (g->vertex)[node].pred;
+		}
+		return 1;	
+	}
+}
+
+void graph_from_src_init(graph_t * g, vertex_set_t * src_vs)
+{
+	for (int i = 0; i < g-> n_vertices; i++)
+	{
+		(g->vertex)[i].from_src = MY_INFINITY;
+	}
+	for (int i = 0; i < src_vs->count; i++)
+	{
+		(g->vertex)[(src_vs->id)[i]].from_src = 0;
+		(g->vertex)[(src_vs->id)[i]].pred = (src_vs->id)[i];
+	}
+	return;
+}
+
+//initialize the heap
+void heap_init(graph_t * g, heap_t * h, vertex_set_t * src_vs)
+{
+	//the array of heap: (h->elt)[]
+	//the array of graph: (g->vertex)[]
+	for (int i = 0; i < (src_vs->count); i++)
+	{
+		heap_insert(g,h,(src_vs->id)[i]);
+	}
+}
+
+void heap_insert(graph_t * g, heap_t * h, int32_t id)
+{
+	(h->elt)[h->n_elts] = id;
+	(h->n_elts)++;
+	up_heap(g,h,(h->n_elts)-1);
+	return;
+}
+
+//return -1 if the heap is already empty
+int32_t heap_pop(graph_t * g, heap_t * h)
+{
+	if ((h->n_elts)==0){
+		return -1;
+	}
+	else {
+		int32_t id;
+		id = (h->elt)[0];
+		(h->elt)[0] = (h->elt)[(h->n_elts)-1];
+		(h->n_elts)--;
+		down_heap(g,h,0);
+		return id;
+	}
+}
+
+void up_heap(graph_t * g, heap_t * h, int32_t elt_index)
+{
+	//The heap index begins with 0;
+	//left: 2*n+1; right: 2*n+2;
+	//the previous node of 8 is 3 because 3 = (8-1)/2
+	if (elt_index == 0){
+		return;
+	}
+	int32_t id = (h->elt)[elt_index];		//this is an id of the insert graph node
+	int32_t half_index = (elt_index-1)/2;
+	int32_t half_index_id = (h->elt)[half_index];
+	if ((g->vertex)[id].from_src>=(g->vertex)[half_index_id].from_src){
+		return;
+	}
+	else{
+		(h->elt)[elt_index] = half_index_id;
+		(h->elt)[half_index] = id;
+		up_heap(g,h,half_index);
+	}
+}
+
+void down_heap(graph_t * g, heap_t * h, int32_t elt_index)
+{
+	int32_t right = 2*elt_index + 2;
+	int32_t left = 2*elt_index + 1;
+	int32_t lowest = elt_index;
+	int32_t left_id = (h->elt)[left];
+	int32_t right_id = (h->elt)[right];
+	int32_t temp_id;
+    
+	if (left <= (h->n_elts) && (g->vertex)[left_id].from_src < (g->vertex)[(h->elt)[lowest]].from_src)
+		lowest = left;
+	if (right <= (h->n_elts) && (g->vertex)[right_id].from_src < (g->vertex)[(h->elt)[lowest]].from_src) 
+		lowest = right;
+	if (lowest != elt_index) {
+		temp_id = (h->elt)[lowest];
+		(h->elt)[lowest] = (h->elt)[elt_index];
+		(h->elt)[elt_index] = temp_id;
+		down_heap(g,h,lowest);
+	}
+}

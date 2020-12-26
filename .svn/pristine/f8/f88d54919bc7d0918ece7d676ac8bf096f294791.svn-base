@@ -1,0 +1,30 @@
+
+1. Provide C code to declare a variable "s" which is an array of 4 structures with members "int" and "double".
+
+
+2. Declare the same variable "s" (an array of 4 structures with members "int" and "double"), this time using a custom type to identify the structure.
+
+
+
+3. What does the type of "a" change to when it's used in expression 1?
+
+
+4. What is the result of all four expressions? Why?
+
+
+5. You have a variable with type "int" that you want to pass to a function, but the parameter has type "int *". How do you pass it? What if the parameter has type "int **"?
+
+
+6. Suppose you have a variable called "vector_array" which is an array of this "vector" type. Write a C expression to access the y component of element 4 of the array (element 0 is the first).
+
+
+7. If we have a variable "cur_ball" which is a pointer to a "ball", how would we access the x velocity of the ball? What if we had an array of "ball" called "balls" and wanted to access the y position of ball 0?
+
+
+8. Explain why "&array[3]" and "array + 3" are equivalent.
+
+
+9. Explain why this trick works.
+
+
+

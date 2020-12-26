@@ -1,0 +1,56 @@
+
+1. Provide C code to declare a variable "s" which is an array of 4 structures with members "int" and "double".
+
+struct S{int a;double b;};
+struct S s[4];
+
+2. Declare the same variable "s" (an array of 4 structures with members "int" and "double"), this time using a custom type to identify the structure.
+
+typedef struct{int a;double b;} S_t;
+S_t s[4];
+
+3. What does the type of "a" change to when it's used in expression 1?
+
+0xbffed74c
+This is the value of pointer a;
+
+4. What is the result of all four expressions? Why?
+
+All the expressions evaluated to 4;
+expression 1: This is because array is a pointer to the first element and has the type int *. So by array+3, this pointer will points to the last element of the array.
+expression 2: This is the index operation which gives the forth value of this array. This expression will be evaluated as: *(array+3).
+expression 3: Since the base_pointer also has the type int *, and the content of this pointer was given by pointer array. So it's equivalent to *(array+3).
+expression 4: This expression will be evaluated as: *(base_pointer+3).
+
+5. You have a variable with type "int" that you want to pass to a function, but the parameter has type "int *". How do you pass it? What if the parameter has type "int **"?
+
+I will pass &variable;
+
+For the second question:
+int *ptr = &variable;
+Then give the function &ptr.
+
+6. Suppose you have a variable called "vector_array" which is an array of this "vector" type. Write a C expression to access the y component of element 4 of the array (element 0 is the first).
+
+vector_array[4].y;
+
+7. If we have a variable "cur_ball" which is a pointer to a "ball", how would we access the x velocity of the ball? What if we had an array of "ball" called "balls" and wanted to access the y position of ball 0?
+
+question 1:
+(cur_ball->velocity).x;
+
+question 2:
+balls[0].position.y;
+
+8. Explain why "&array[3]" and "array + 3" are equivalent.
+
+It's obvious that the array+3 has is actually a pointer to the forth element of this array, the (array+3) has the type int *.
+Since the array[3] takes the integer value of forth element of this array, it's obvious that if we use &(array[3]), it will produce a pointer the forth element with type int *. This is equivalent to the array+3.
+
+
+9. Explain why this trick works.
+The compiler will use the padding to make sure that the memory access is fast.
+Most ISA requires that when loading or storing N bytes, it will use addresses that are multiples of N, so it's better to let the compiler calculate the size of a struct for us.
+For the last use of function sizeof, it's because sizeof(array) evaluates all the bytes needed in total that if you divide it by sizeof(array[0]), you will get the length of the array.
+
+

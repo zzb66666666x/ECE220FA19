@@ -1,0 +1,79 @@
+/**********************
+ *  * binarytree.c:
+ *   ***********************/
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "binarytree.h"
+
+BTREE new_node()
+{
+    return ((BTREE)malloc(sizeof(NODE)));
+}
+
+BTREE init_node(DATA d1, BTREE p1, BTREE p2)
+{
+    BTREE t;
+
+    t = new_node();
+    t->d = d1;
+    t->left = p1;
+    t->right = p2;
+
+    return t;
+}
+
+/* create a linked binary tree from an array */
+BTREE create_tree(DATA a[], int i, int size)
+{
+	//At first, the i is 0, then it will create 1 and 2;
+	//The node 1 will create 3 and 4, and 2 will create 5 and 6;
+    if (i >= size)
+        return NULL;
+    else
+        return(init_node(a[i], create_tree(a, 2*i+1, size),create_tree(a, 2*i+2, size)));
+}
+
+/* preorder traversal */
+void preorder (BTREE root)
+{
+ /* your code goes here */
+	printf("%c ",root->d);
+	if ((root->left)!=NULL){
+		preorder(root->left);	
+	}
+	if ((root->right)!=NULL){
+		preorder(root->right);
+	}
+	return;	
+}
+
+/* Inorder traversal */
+void inorder (BTREE root)
+{
+/* your code goes here */
+	if ((root->left)!=NULL){
+		inorder(root->left);
+	}
+	printf("%c ",root->d);		//back to the middle
+	if ((root->right)!=NULL){
+		inorder(root->right);
+	}
+	return;
+}
+
+/* postorder binary tree traversal */
+void postorder (BTREE root)
+{
+ /* your code goes here */
+	if ((root->left)!=NULL){
+		postorder(root->left);
+	}
+	if ((root->right)!=NULL){
+		inorder(root->right);
+	}
+	printf("%c ",root->d);
+	return;
+}
+

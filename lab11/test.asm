@@ -1,0 +1,132 @@
+.ORIG x4000
+
+;Assume that the stack was at x5000
+;the parameters was loaded here: the parameter is a pointer to the node
+LD R1, BTREE
+LD R0, g
+STR R0, R1, #0			;R0 has x0067, R1 has x3000
+ADD R0, R1, #3			;R0 has x3003
+STR R0, R1, #1
+ADD R0, R0, #3
+STR R0, R1, #2			;R0 has x3006 and R1 has x3000
+LD R0, d
+STR R0, R1, #3			;R0 has x0064, R1 has x3000
+ADD R0, R1, #9			;R0 has x3009
+STR R0, R1, #4
+ADD R0, R0, #3			;R0 has x300C
+STR R0, R1, #5
+LD R0, i
+STR R0, R1, #6
+LD R0, NULL
+STR R0, R1, #7
+STR R0, R1, #8
+STR R0, R1, #10
+STR R0, R1, #11
+STR R0, R1, #13
+STR R0, R1, #14
+LD R0, b
+STR R0, R1, #9
+LD R0, f
+STR R0, R1, #12
+LD R6, STACK			;R5 = R6 = x5000
+LD R5, STACK
+LD R0, BTREE			;R0 = x3000
+STR R0, R6, #0			;R6 has x5000
+AND R1, R1, #0
+AND R2, R2, #0
+AND R0, R0, #0
+AND R3, R3, #0
+AND R4, R4, #0
+JSR INORDER
+LDR R0, R6, #0
+ADD R6, R6, #2
+HALT
+; implement this subroutine following the run-time stack convention presented in lectures
+; use OUT trap to print 
+INORDER
+; leave space for return value
+ADD R6, R6, #-1
+; push return address (R7)
+ADD R6, R6, #-1
+STR R7, R6, #0
+; push caller’s frame pointer (R5)
+ADD R6, R6, #-1
+STR R5, R6, #0
+; set new frame pointer
+ADD R5, R6, #-1
+;;now R5 has x4FFC, R6 has x4FFD
+LDR R1, R5, #4			;R1 has x3000 now
+ADD R2, R1, #1			;R2 has x3001
+LDR R2, R2, #0			;load the root->left into R2
+AND R3, R3, #0			;R3 is NULL
+ADD R3, R2, R3
+BRz ELSE
+;;another call of function
+ADD R6, R5, #0			;R5 = R6 = x4FFC
+LDR R1, R5, #4
+ADD R2, R1, #1
+LDR R2, R2, #0
+STR R2, R6, #0
+JSR INORDER
+LDR R0, R6, #0
+ADD R6, R6, #2
+LDR R1, R5, #4			;R1 now has x3000 which is an address
+LDR R0, R1, #0			;load ascii code into R0
+OUT
+LD R0, SPACE
+OUT
+BRnzp NEXT_IF
+
+ELSE
+LDR R1, R5, #4
+LDR R0, R1, #0
+OUT
+LD R0, SPACE
+OUT
+; pop local variables
+ADD R6, R5, #1		
+; pop caller’s frame pointer (into R5)
+LDR R5, R6, #0		
+ADD R6, R6, #1			
+; pop return addr (into R7)
+LDR R7, R6, #0
+ADD R6, R6, #1			
+RET
+NEXT_IF
+LDR R1, R5, #4
+ADD R2, R1, #2
+LDR R0, R2, #0
+AND R3, R3, #0
+ADD R3, R2, R3
+BRz DONE
+ADD R6, R6, #-1
+STR R0, R6, #0
+JSR INORDER
+LDR R0, R6, #0
+ADD R6, R6, #2
+DONE
+; pop local variables
+ADD R6, R5, #1			
+; pop caller’s frame pointer (into R5)
+LDR R5, R6, #0			
+ADD R6, R6, #1			
+; pop return addr (into R7)
+LDR R7, R6, #0
+ADD R6, R6, #1			
+RET
+
+STACK .FILL x5000
+BTREE .FILL x3000
+SPACE .FILL x0020
+g .FILL x0067
+d .FILL x0064
+i .FILL x0069
+b .FILL x0062
+f .FILL x0066
+;h .FILL x0068
+;j .FILL x006A
+;a .FILL x0061
+;c .FILL x0063
+;e .FILL x0065
+NULL .FILL x0000
+.END

@@ -1,0 +1,54 @@
+#include <stdint.h>
+#include <stdio.h>
+
+#include "visualize.h"
+#include "mp11.h"
+//Intro:
+//input: graph, pyramid tree, heap space, request1, request2, source, desination, pointer to path
+//output: starting nodes, ending nodes, path(optimized)
+//return: 0/1 on whether the path was successfully found
+
+//The input graph contains complete information about the graph, it has the type graph_t and the array inside contains all the vertices. Treat it like a database.
+//The heap here has been allocated some memory but uninitialized. 
+//The input pyramid tree contains: positions like (x,y) and the vertex id. The function of it is to help us to better traverse the graph.
+//What about the heap: the heap only contains the id and the array length. The heap h here is for the dijkstra.
+//The heap is actually an binary heap with properties as follows:
+//	1. The root contains the graph node with lowest distance.
+//	2. The root shows the next node to go. It has to be deleted if you want to go that way.
+//The dijkstra only takes input graph, heap, source, destination and path. The pyramid tree was not actually given to the the algorithm.
+//One thing to note is that only the leaves of the pryramid tree can be a vertex in the graph.
+
+//First, figure out the source and destination.
+//Then, initialize the heap for the algorithm (not in this file).
+//Finally, implement the dijkstra.
+
+int32_t
+match_requests (graph_t* g, pyr_tree_t* p, heap_t* h,
+		request_t* r1, request_t* r2,
+		vertex_set_t* src_vs, vertex_set_t* dst_vs, path_t* path)
+{
+	//Locate source and destination
+	int32_t check;
+	src_vs->count = 0;
+	dst_vs->count = 0;
+	path->n_vertices = 0;
+	path->tot_dist = 0;
+	find_nodes_inst(&(r1->from),src_vs,p,0);
+	find_nodes_inst(&(r1->to),dst_vs,p,0);
+	//printf("found nodes\n");
+	//Why giving graph instead of pyramid tree to the function? It's because that the vertex set contains id index numbers of the graph.
+	trim_nodes(g,src_vs,&(r2->from));
+	trim_nodes(g,dst_vs,&(r2->to));
+	if ((src_vs->count == 0)||(dst_vs->count == 0)){
+		return 0;
+	}
+	//do the algorithm
+	check = dijkstra(g,h,src_vs,dst_vs,path);
+	if (check){
+		return 1;
+	}
+	else{
+		return 0;	
+	}
+}
+

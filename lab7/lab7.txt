@@ -1,0 +1,89 @@
+Answer the following questions:
+
+
+1. What is output from igcc? What is the initial value in the pointer? Will this always be the case? Hint think about what is stored in a variable that is not initialized.
+
+The output is 0x1.
+The initial value in the pointer is 0x1 which is actually a random value.
+No, because you will not know what is in the memory if you don't initialize it.
+
+2. What does the * operator do at this point in the code? What happened? Why?
+
+The * operator defines a pointer which points to a integer.
+Then the value of the pointer was assigned by the address of variable a.
+This is because that the pointer should store the information of an address.
+The & operator here takes the address of variable a and store it into the pointer.
+The value of the ipoint is now 0xbfcd1068.
+
+
+3. What is the output when running the following commands?
+
+Output: 
+5
+15
+5
+
+4. What happens when running the above code? Why? How did you fix the code?
+
+Output:
+0xbf861990
+0xbf861994
+0xbf861998
+0xbf86199c
+0xbf8619a0
+0xbf8619a4
+0xbf8619a8
+0x7
+Segmentation fault (core dumped)
+
+This is because that the array only has length 5, and then if we further move the pointer, the program will be crashed. The statement *point = i tries to modify the memory, but after the three bookkeepings of the main got changed, error occurs. When the pointer get incremented by 8 times, it will cause the program to crash.
+
+I modify the number of iterations to be "for(int i=0; i < 5; i++)".
+The output is then:
+0xbff78f20
+0xbff78f24
+0xbff78f28
+0xbff78f2c
+0xbff78f30
+0
+1
+2
+3
+4
+
+
+5. What is ipoint incremented by each time the statement ipoint = ipoint + 1 is run when the array is of type double. Why? Notice that the output from the array starts with zero. Why?
+
+The output:
+0xbffbd860
+0xbffbd868
+0xbffbd870
+0xbffbd878
+0xbffbd880
+0.000000
+1.000000
+2.000000
+3.000000
+4.000000
+
+The increment value is 8 bytes which means a double variable takes 64 bits.
+The output of the array starts with zero because when executing the "*ipoint = i;", the pointer directly changes to value inside the array to be the current loop count. The pointer was initialized with the address of the first element of the array.
+
+
+6. How does passing the arrays to a function using pointers affect the data as the array is being passed to the function? Hint: what happens if the array is changed in the function?
+
+Passing arrays to a function means passing the pointers to the funtion and the function can access the data using the address in the pointer. If the function tries to change the value inside the array, the array will be changed in the original memory position because the function can locate the array using pointers. Even though a function only accepts the value of pointer instead of an address, it can still can modify the array because of the pointer.
+Note that the name of an array is actually a pointer.
+
+
+7. Why is there a problem with the previous code snippet? Which line gives the error? Why?
+
+error information: error: cannot convert ‘double**’ to ‘int*’ in assignment
+The pointer pi should points to a integer. The pointer pd should points to a double. Now if we assign the address of pd to a new variable, the new variable should have the type double** which is a pointer to a pointer to a double. Since the type for the pointer pi has the type int* which is a pointer to integer, the error will occur because the compiler may fail to do the type conversion.
+
+
+8. Why is there a problem with that assignment? Why does the last assignment fail?
+
+error: cannot convert ‘int (*)[10]’ to ‘int (*)[5]’ in assignment
+The meaning of int (*p5)[5] is that there is a pointer called p5 which should points to an array with 5 interger elements in it. However, the array b is actually an array of 10 intergers which means that the type of b is int (*)[10]. This is different with the type of p5 which is int (*)[5]. The compiler fails to do the type conversion because C compiler forced the value assignment to happen under the condition of same datatype. 
+

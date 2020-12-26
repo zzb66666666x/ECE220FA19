@@ -1,0 +1,24 @@
+1. What benefits does unit testing provide over testing a program as a whole?
+You can identify which block of the code is wrong before finishing writing the whole code which may contains hundreds of different parts of code. You will find it hard to locate the problem if you try to test the coded in the whole. If every unit of your code can pass the test, it's highly possible that your code is fine which will save you a lot of time to test the functionality of the whole program. 
+
+
+2. Your MPs have been graded by autograders. Do the autograders perform black
+   box testing or white box testing? Explain your answer.
+The autograders are black boxes because the it will usuall input a test text file and check the output of mycode by comparing the output with the standard answer. The grader doesn't care about the code inside which makes it impossible to do the white box test.
+
+
+3. Describe at least one pessimistic test case for programming problem 1 on
+   midterm 1.
+Nothing.
+
+
+4.     float result = my_sin(360.0);
+       assert(result == 0.0);
+
+   The assert in the above code snippet is too strict. Assume the
+   specification allows my_sin to be off by at most 0.01. How should the
+   assert statement be modified to reflect this? (Hint: You may use the fabs()
+   absolute value function.)
+float result = my_sin(360.0);
+assert(fabs(result-0.0) <= 0.01);
+

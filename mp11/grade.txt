@@ -1,0 +1,7 @@
+Compiler Output:
+****************
+gcc -c -Wall -g -o mp11.o mp11.c
+gcc -c -Wall -g -o mp11match.o mp11match.c
+gcc -c -Wall -g -o mp11main.o mp11main.c
+gcc mp11.o mp11match.o mp11main.o -o mp11 -g -lm
+

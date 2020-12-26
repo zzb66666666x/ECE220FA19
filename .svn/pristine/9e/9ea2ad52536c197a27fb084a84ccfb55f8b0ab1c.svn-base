@@ -1,0 +1,16 @@
+
+
+.ORIG x4000
+
+; implement this subroutine following the run-time stack convention presented in lectures
+; use OUT trap to print 
+INORDER
+
+
+
+
+
+RET
+
+
+.END

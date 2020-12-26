@@ -1,0 +1,18 @@
+// Symbol table
+// Scope level 0:
+//	Symbol Name       Page Address
+//	----------------  ------------
+//	INORDER           4027
+//	ELSE              4041
+//	NEXT_IF           404C
+//	DONE              4057
+//	STACK             405D
+//	BTREE             405E
+//	SPACE             405F
+//	g                 4060
+//	d                 4061
+//	i                 4062
+//	b                 4063
+//	f                 4064
+//	NULL              4065
+

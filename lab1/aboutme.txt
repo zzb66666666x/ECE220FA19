@@ -1,0 +1,1 @@
+Write a short introduction about yourself (program of study, what ECE courses have you taken so far, what makes you interested in CompE/EE, etc.) and what do you expect to achieve in this class.
